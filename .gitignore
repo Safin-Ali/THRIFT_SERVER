@@ -1,0 +1,8 @@
+# environment files
+.env
+
+# Modules files
+/node_modules
+
+# my created fake data
+fakeData.js
