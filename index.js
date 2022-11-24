@@ -17,6 +17,7 @@ async function run () {
 
     const TMDB = client.db('thrift-motors');
     const brandOfTM = TMDB.collection('brand');
+    const allPostedDataOfTM = TMDB.collection('postedData');
 
     // Root Path Response Welcome Message
     app.get('/',(req,res)=>{
@@ -27,6 +28,14 @@ async function run () {
     app.get('/all-brand',async(req,res)=>{
         const query = {};
         const result = await brandOfTM.find(query).toArray();
+        res.send(result)
+    })
+
+    // get posted data by catetory name/'id'
+    app.get('/category/:id',async(req,res)=>{
+        const reqParams = req.params;
+        const filter = {serviceId: reqParams.id};
+        const result = await allPostedDataOfTM.find(filter).toArray();
         res.send(result)
     })
 }
