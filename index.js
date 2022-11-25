@@ -11,13 +11,14 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 // middleware
 app.use(cors());
-app.use(express());
+app.use(express.json());
 
 async function run () {
 
     const TMDB = client.db('thrift-motors');
     const brandOfTM = TMDB.collection('brand');
     const allPostedDataOfTM = TMDB.collection('postedData');
+    const allusersDataOfTM = TMDB.collection('usersInfo');
 
     // Root Path Response Welcome Message
     app.get('/',(req,res)=>{
@@ -37,6 +38,16 @@ async function run () {
         const filter = {serviceId: reqParams.id};
         const result = await allPostedDataOfTM.find(filter).toArray();
         res.send(result)
+    })
+
+    // store user account information
+    app.post(`/userinfo`,async(req,res)=>{
+        const reqBody = req.body;
+        delete reqBody.password;
+        delete reqBody.confirmPassword;
+        const result = await allusersDataOfTM.insertOne(req.body);
+        res.send(result)
+        console.log(reqBody,result)
     })
 }
 
