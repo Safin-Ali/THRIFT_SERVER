@@ -18,7 +18,8 @@ async function run () {
     const TMDB = client.db('thrift-motors');
     const brandOfTM = TMDB.collection('brand');
     const allPostedDataOfTM = TMDB.collection('postedData');
-    const allusersDataOfTM = TMDB.collection('usersInfo');
+    const allUsersDataOfTM = TMDB.collection('usersInfo');
+    const allBookedDataOfTM = TMDB.collection('bookedCar');
 
     // Root Path Response Welcome Message
     app.get('/',(req,res)=>{
@@ -45,18 +46,24 @@ async function run () {
         const reqBody = req.body;
         delete reqBody.password;
         delete reqBody.confirmPassword;
-        const result = await allusersDataOfTM.insertOne(req.body);
+        const result = await allUsersDataOfTM.insertOne(req.body);
         res.send(result)
     })
 
     // get user information by id
     app.get('/userinfo',async(req,res)=>{
         const query = {userEmail: req.query.email};
-        const result = await allusersDataOfTM.findOne(query);
+        const result = await allUsersDataOfTM.findOne(query);
         res.send(result)
     })
 
-    
+    // store all bookedCar data
+    app.post('/bookedCar',async(req,res)=>{
+        const reqBody = req.body;
+        const result = await allBookedDataOfTM.insertOne(reqBody);
+        res.send(result)
+    })
+
 }
 
 run().catch(console.dir)
