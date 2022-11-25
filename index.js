@@ -37,7 +37,7 @@ async function run () {
         const reqParams = req.params;
         const filter = {serviceId: reqParams.id};
         const result = await allPostedDataOfTM.find(filter).toArray();
-        res.send(result)
+        res.send(result);
     })
 
     // store user account information
@@ -47,8 +47,16 @@ async function run () {
         delete reqBody.confirmPassword;
         const result = await allusersDataOfTM.insertOne(req.body);
         res.send(result)
-        console.log(reqBody,result)
     })
+
+    // get user information by id
+    app.get('/userinfo',async(req,res)=>{
+        const query = {userEmail: req.query.email};
+        const result = await allusersDataOfTM.findOne(query);
+        res.send(result)
+    })
+
+    
 }
 
 run().catch(console.dir)
