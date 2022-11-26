@@ -74,6 +74,20 @@ async function run () {
         res.send(result)
     })
 
+    // get product by user email
+    app.get('/my-product/:email',async(req,res)=>{
+        const query = {'postOwnerInfo.email': req.params.email }
+        const result = await allPostedDataOfTM.find(query).toArray();
+        res.send(result)
+    })
+
+    // delete product by id and email
+    app.delete('/postedData',async(req,res)=>{
+        const query = {_id: ObjectId(req.query.id),'postOwnerInfo.email':req.query.email}
+        const result = await allPostedDataOfTM.deleteOne(query);
+        res.send(result);
+    })
+
 }
 
 run().catch(console.dir)
