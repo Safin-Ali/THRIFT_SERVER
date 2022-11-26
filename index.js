@@ -21,6 +21,7 @@ async function run () {
     const allUsersDataOfTM = TMDB.collection('usersInfo');
     const allBookedDataOfTM = TMDB.collection('bookedCar');
     const allPostBackup = TMDB.collection('backupPost');
+    const allBlogsOfTM = TMDB.collection('blogs');
 
     // Root Path Response Welcome Message
     app.get('/',(req,res)=>{
@@ -31,6 +32,12 @@ async function run () {
     app.get('/all-brand',async(req,res)=>{
         const query = {};
         const result = await brandOfTM.find(query).toArray();
+        res.send(result)
+    })
+
+    // get blogs text
+    app.get('/blogs',async(req,res)=>{
+        const result = await allBlogsOfTM.find({}).toArray();
         res.send(result)
     })
 
