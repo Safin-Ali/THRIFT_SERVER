@@ -34,6 +34,13 @@ async function run () {
         res.send(result)
     })
 
+    // get only Advertised post data
+    app.get('/advertised',async(req,res)=>{
+        const filter = {advertise: true};
+        const result = await allPostedDataOfTM.find(filter).toArray();
+        res.send(result);
+    })
+
     // get posted data by catetory name/'id'
     app.get('/category/:id',async(req,res)=>{
         const reqParams = req.params;
@@ -56,7 +63,32 @@ async function run () {
         const query = {userEmail: req.query.email};
         const result = await allUsersDataOfTM.findOne(query);
         res.send(result)
+    });
+
+    // get user all sold Count number
+    app.get('/userSoldCount',async(req,res)=>{
+        const paidType = req.query.paid;
+        const boolean = paidType === 'true' ? true : false;
+        const query = {'postOwnerInfo.email': req.query.email, paid: boolean};
+        const result = await allPostedDataOfTM.find(query).toArray();
+        res.send(result);
     })
+
+    // get seller post count number
+    app.get('/userPostCount',async(req,res)=>{
+        const query = {'postOwnerInfo.email': req.query.email};
+        const result = await allPostedDataOfTM.find(query).toArray();
+        res.send(result);
+    })
+
+    // get all user information
+    app.get('/allUser',async(req,res)=>{
+        const query = {userRole: req.query.role};
+        const result = await allUsersDataOfTM.find(query).toArray();
+        console.log()
+        res.send(result);
+    })
+    
 
     // store all bookedCar data
     app.post('/bookedCar',async(req,res)=>{
@@ -86,6 +118,15 @@ async function run () {
         const query = {_id: ObjectId(req.query.id),'postOwnerInfo.email':req.query.email}
         const result = await allPostedDataOfTM.deleteOne(query);
         res.send(result);
+    })
+
+    // advertise postedData by post id
+    app.patch('/postedData',async(req,res)=>{
+        const reqBody = req.body;
+        const filter = {_id: ObjectId(reqBody.id),'postOwnerInfo.email':reqBody.email};
+        const updateAdvertise = {$set:{advertise: true}};
+        const result = await allPostedDataOfTM.updateOne(filter,updateAdvertise);
+        res.send(result)
     })
 
 }
