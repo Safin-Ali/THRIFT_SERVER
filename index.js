@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const dotenv = require('dotenv').config();
 const port = process.env.PORT || 5000;
 const cors = require('cors');
@@ -20,13 +20,14 @@ async function run () {
     const allPostedDataOfTM = TMDB.collection('postedData');
     const allUsersDataOfTM = TMDB.collection('usersInfo');
     const allBookedDataOfTM = TMDB.collection('bookedCar');
+    const allPostBackup = TMDB.collection('backupPost');
 
     // Root Path Response Welcome Message
     app.get('/',(req,res)=>{
         res.send('YAY! Welcome THRIFT-MOTORS API');
     })
 
-    // get all sell post of toyota cars 
+    // get all brand by id
     app.get('/all-brand',async(req,res)=>{
         const query = {};
         const result = await brandOfTM.find(query).toArray();
@@ -60,7 +61,16 @@ async function run () {
     // store all bookedCar data
     app.post('/bookedCar',async(req,res)=>{
         const reqBody = req.body;
+        const backup = await allPsotBackup.insertOne(reqBody);
         const result = await allBookedDataOfTM.insertOne(reqBody);
+        res.send(result)
+    })
+
+    // store new product post
+    app.post('/new-post',async(req,res)=>{
+        const reqBody = req.body;
+        const backup = await allPostBackup.insertOne(reqBody);
+        const result = await allPostedDataOfTM.insertOne(reqBody);
         res.send(result)
     })
 
