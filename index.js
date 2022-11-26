@@ -22,10 +22,17 @@ async function run () {
     const allBookedDataOfTM = TMDB.collection('bookedCar');
     const allPostBackup = TMDB.collection('backupPost');
     const allBlogsOfTM = TMDB.collection('blogs');
+    const sliderImagesTM = TMDB.collection('sliderImages');
 
     // Root Path Response Welcome Message
     app.get('/',(req,res)=>{
         res.send('YAY! Welcome THRIFT-MOTORS API');
+    })
+
+    // get slider images array
+    app.get('/sliderImage',async (req,res)=>{
+        const result = await sliderImagesTM.findOne({});
+        res.send(result)
     })
 
     // get all brand by id
