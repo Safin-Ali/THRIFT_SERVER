@@ -149,6 +149,14 @@ async function run () {
         res.send(result);
     })
 
+    // delete user by id
+
+    app.delete('/userInfo',async(req,res)=>{
+        const query = {_id: ObjectId(req.query.id)}
+        const result = await allUsersDataOfTM.deleteOne(query);
+        res.send(result);
+    })
+
     // advertise postedData by post id
     app.patch('/postedData',async(req,res)=>{
         const reqBody = req.body;
