@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv').config();
 const port = process.env.PORT || 5000;
 const cors = require('cors');
@@ -27,6 +28,17 @@ async function run () {
     // Root Path Response Welcome Message
     app.get('/',(req,res)=>{
         res.send('YAY! Welcome THRIFT-MOTORS API');
+    })
+
+    // generate jwt secret key
+    function generateJWT (email) {
+        return jwt.sign(email,process.env.JWT_SECRET_KEY);
+    }
+
+    app.get('/jwt',(req,res)=>{
+        const reqQuery = req.query.email;
+        const encryptToken = {encryptToken:generateJWT(reqQuery)};
+        res.send(encryptToken)
     })
 
     // get slider images array
