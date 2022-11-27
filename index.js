@@ -99,7 +99,21 @@ async function run () {
     app.get('/allUser',async(req,res)=>{
         const query = {userRole: req.query.role};
         const result = await allUsersDataOfTM.find(query).toArray();
-        console.log()
+        res.send(result);
+    })
+
+    // update user verify value
+    app.patch('/allUser',async(req,res)=>{
+        let status = true
+        if(req.body.status){
+            status = false;
+        };
+        const updateDoc = {$set:{userVarified: status}};
+        const thisUserAllPostUpdateDoc = {$set:{'postOwnerInfo.varified':status}};
+        const query = {_id: ObjectId(req.body._id),userEmail:req.body.userEmail};
+        const filterThisUserAllPost = {'postOwnerInfo.email':req.body.userEmail}
+        const updateThisUserAllPost = await allPostedDataOfTM.updateMany(filterThisUserAllPost,thisUserAllPostUpdateDoc)
+        const result = await allUsersDataOfTM.updateOne(query,updateDoc);
         res.send(result);
     })
     
