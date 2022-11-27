@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv').config();
+require('dotenv').config();
 const port = process.env.PORT || 5000;
 const cors = require('cors');
 
@@ -35,6 +35,25 @@ async function run () {
         return jwt.sign(email,process.env.JWT_SECRET_KEY);
     }
 
+    // verify JWT
+    function verifyJWT (req,res,next){
+        const authorization = req.headers.authorization;
+
+        // when req authorization code not found or null
+        if(!authorization) return res.status(401).send(`Go to your Grandmother house`);
+
+        const encryptToken = authorization.split(' ')[1];
+        jwt.verify(encryptToken,process.env.JWT_SECRET_KEY,(err,decryptCode)=>{
+
+            // if when decrypt not successfull
+            if(err) return res.status(401).send();
+
+            req.decryptCode = decryptCode;            
+            return next()
+        })
+    }
+
+    // get encrypt jwt
     app.get('/jwt',(req,res)=>{
         const reqQuery = req.query.email;
         const encryptToken = {encryptToken:generateJWT(reqQuery)};
@@ -61,7 +80,7 @@ async function run () {
     })
 
     // get only Advertised post data
-    app.get('/advertised',async(req,res)=>{
+    app.get('/advertised',verifyJWT,async(req,res)=>{
         const filter = {advertise: true};
         const result = await allPostedDataOfTM.find(filter).toArray();
         res.send(result);
@@ -86,14 +105,14 @@ async function run () {
     })
 
     // get user information by id
-    app.get('/userinfo',async(req,res)=>{
+    app.get('/userinfo',verifyJWT,async(req,res)=>{
         const query = {userEmail: req.query.email};
         const result = await allUsersDataOfTM.findOne(query);
         res.send(result)
     });
 
     // get user all sold Count number
-    app.get('/userSoldCount',async(req,res)=>{
+    app.get('/userSoldCount',verifyJWT,async(req,res)=>{
         const paidType = req.query.paid;
         const boolean = paidType === 'true' ? true : false;
         const query = {'postOwnerInfo.email': req.query.email, paid: boolean};
@@ -102,14 +121,14 @@ async function run () {
     })
 
     // get seller post count number
-    app.get('/userPostCount',async(req,res)=>{
+    app.get('/userPostCount',verifyJWT,async(req,res)=>{
         const query = {'postOwnerInfo.email': req.query.email};
         const result = await allPostedDataOfTM.find(query).toArray();
         res.send(result);
     })
 
     // get all user information
-    app.get('/allUser',async(req,res)=>{
+    app.get('/allUser',verifyJWT,async(req,res)=>{
         const query = {};
         const result = await allUsersDataOfTM.find(query).toArray();
         const users = result.filter(user => user.userRole !== 'admin')
@@ -117,7 +136,7 @@ async function run () {
     })
 
     // update user verify value
-    app.patch('/allUser',async(req,res)=>{
+    app.patch('/allUser',verifyJWT,async(req,res)=>{
         let status = true
         if(req.body.status){
             status = false;
@@ -131,16 +150,15 @@ async function run () {
         res.send(result);
     })    
 
-    // store all bookedCar data
-    app.post('/bookedCar',async(req,res)=>{
+    // store bookedCar data
+    app.post('/bookedCar',verifyJWT,async(req,res)=>{
         const reqBody = req.body;
-        const backup = await allPsotBackup.insertOne(reqBody);
         const result = await allBookedDataOfTM.insertOne(reqBody);
         res.send(result)
     })
 
-    // store new product post
-    app.post('/new-post',async(req,res)=>{
+    // store new product or added product post
+    app.post('/new-post',verifyJWT,async(req,res)=>{
         const reqBody = req.body;
         const backup = await allPostBackup.insertOne(reqBody);
         const result = await allPostedDataOfTM.insertOne(reqBody);
@@ -148,28 +166,28 @@ async function run () {
     })
 
     // get product by user email
-    app.get('/my-product/:email',async(req,res)=>{
+    app.get('/my-product/:email',verifyJWT,async(req,res)=>{
         const query = {'postOwnerInfo.email': req.params.email }
         const result = await allPostedDataOfTM.find(query).toArray();
         res.send(result)
     })
 
     // delete product by id and email
-    app.delete('/postedData',async(req,res)=>{
+    app.delete('/postedData',verifyJWT,async(req,res)=>{
         const query = {_id: ObjectId(req.query.id),'postOwnerInfo.email':req.query.email}
         const result = await allPostedDataOfTM.deleteOne(query);
         res.send(result);
     })
 
     // delete user by id
-    app.delete('/userInfo',async(req,res)=>{
+    app.delete('/userInfo',verifyJWT,async(req,res)=>{
         const query = {_id: ObjectId(req.query.id)}
         const result = await allUsersDataOfTM.deleteOne(query);
         res.send(result);
     })
 
     // advertise postedData by post id
-    app.patch('/postedData',async(req,res)=>{
+    app.patch('/postedData',verifyJWT,async(req,res)=>{
         const reqBody = req.body;
         const filter = {_id: ObjectId(reqBody.id),'postOwnerInfo.email':reqBody.email};
         const updateAdvertise = {$set:{advertise: true}};
