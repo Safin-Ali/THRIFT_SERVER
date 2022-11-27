@@ -110,9 +110,10 @@ async function run () {
 
     // get all user information
     app.get('/allUser',async(req,res)=>{
-        const query = {userRole: req.query.role};
+        const query = {};
         const result = await allUsersDataOfTM.find(query).toArray();
-        res.send(result);
+        const users = result.filter(user => user.userRole !== 'admin')
+        res.send(users);
     })
 
     // update user verify value
@@ -128,8 +129,7 @@ async function run () {
         const updateThisUserAllPost = await allPostedDataOfTM.updateMany(filterThisUserAllPost,thisUserAllPostUpdateDoc)
         const result = await allUsersDataOfTM.updateOne(query,updateDoc);
         res.send(result);
-    })
-    
+    })    
 
     // store all bookedCar data
     app.post('/bookedCar',async(req,res)=>{
@@ -162,7 +162,6 @@ async function run () {
     })
 
     // delete user by id
-
     app.delete('/userInfo',async(req,res)=>{
         const query = {_id: ObjectId(req.query.id)}
         const result = await allUsersDataOfTM.deleteOne(query);
