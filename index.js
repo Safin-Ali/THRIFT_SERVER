@@ -60,7 +60,8 @@ async function run () {
         const reqParams = req.params;
         const filter = {serviceId: reqParams.id};
         const result = await allPostedDataOfTM.find(filter).toArray();
-        res.send(result);
+        const sendUnSoldCar = result.filter(car => car.paid !== true);
+        res.send(sendUnSoldCar);
     })
 
     // store user account information
