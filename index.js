@@ -159,7 +159,7 @@ async function run () {
     })
 
     // get all bookedCar data
-    app.get('/bookedCar',async(req,res)=>{
+    app.get('/bookedCar',verifyJWT,async(req,res)=>{
         const reqEmail = req.query.email;
         const allPosts = await allPostedDataOfTM.find({}).toArray();
         const allBookedData = await allBookedDataOfTM.find({buyerEmail: reqEmail}).toArray();
