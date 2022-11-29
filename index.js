@@ -158,6 +158,20 @@ async function run () {
         res.send(result)
     })
 
+    // get all bookedCar data
+    app.get('/bookedCar',async(req,res)=>{
+        const reqEmail = req.query.email;
+        const allPosts = await allPostedDataOfTM.find({}).toArray();
+        const allBookedData = await allBookedDataOfTM.find({buyerEmail: reqEmail}).toArray();
+        // get same post qual to ProductID and postData _id
+        const MatchedPost = allPosts.filter(elm1 => {
+            return allBookedData.some(elm2 => {
+                return elm1._id.toString() === elm2.bookedProductId
+            })
+        })
+        res.send(MatchedPost)
+    })
+
     // store new product or added product post
     app.post('/new-post',verifyJWT,async(req,res)=>{
         const reqBody = req.body;
