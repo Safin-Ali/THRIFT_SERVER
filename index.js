@@ -24,6 +24,7 @@ async function run () {
     const allPostBackup = TMDB.collection('backupPost');
     const allBlogsOfTM = TMDB.collection('blogs');
     const sliderImagesTM = TMDB.collection('sliderImages');
+    const allReportedProductOfTM = TMDB.collection('reported-product');
 
     // Root Path Response Welcome Message
     app.get('/',(req,res)=>{
@@ -80,7 +81,7 @@ async function run () {
     })
 
     // get only Advertised post data
-    app.get('/advertised',verifyJWT,async(req,res)=>{
+    app.get('/advertised',async(req,res)=>{
         const filter = {advertise: true};
         const result = await allPostedDataOfTM.find(filter).toArray();
         res.send(result);
@@ -105,7 +106,7 @@ async function run () {
     })
 
     // get user information by id
-    app.get('/userinfo',verifyJWT,async(req,res)=>{
+    app.get('/userinfo',async(req,res)=>{
         const query = {userEmail: req.query.email};
         const result = await allUsersDataOfTM.findOne(query);
         res.send(result)
@@ -194,6 +195,27 @@ async function run () {
         const result = await allPostedDataOfTM.updateOne(filter,updateAdvertise);
         res.send(result)
     })
+
+    // reported post store by seller id and reported product id
+    app.post('/reportedProd',async(req,res)=>{
+        const reqBody = req.body;
+        const result = await allReportedProductOfTM.insertOne(reqBody);
+        res.send(result);
+    })
+
+    // get reported post
+    app.get('/reportedProd',async(req,res)=>{
+        const allPost = await allPostedDataOfTM.find({}).toArray();
+        const reportedPost = await allReportedProductOfTM.find({}).toArray();
+        const matchedPost = allPost.filter(felm => {
+            return reportedPost.some(selm => {
+                return felm._id.toString() === selm.productId
+            })
+        })
+        res.send(matchedPost)
+        
+    })
+
 
 }
 
